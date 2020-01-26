@@ -1,4 +1,4 @@
-import re
+import re #import a module to handle Regular Expressions (RegEx)
 
 dic_content = {}
 def openFile(path):
