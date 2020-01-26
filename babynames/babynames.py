@@ -42,13 +42,14 @@ def write_file(list_var):
     w = open(r"C:\Users\gustavo.cunha\Desktop\Pessoal\google-python-exercises\babynames\summary" + f'{list_var[0]}' + '.txt',"w")
     for each in list_var:
         print(each, end="\n", file=w)
-        # print("".join(map(str, stretch) for stretch in list_var), end="\n") tentar imprimir usando generator
+        # print("".join(map(str, stretch) for stretch in list_var), end="\n") upcoming improvement using Generator
 
     w.close()
 
-#aqui uma função que executa todos os htmls e lança um ranking (overall) dos nomes
+#here a function that runs every single file  and release an overall of the most used names based on search
 def main():
-
+    
+    #input_var = input("Insert the path: ")
     #input_var = r"C:\Users\gustavo.cunha\Desktop\Pessoal\texto_mimic.txt"
     year_summary = input("Enter the year you would like to see the most used names and --summary for retrieving the ranking into a new file: ").split()
     input_var = str(r"C:\Users\gustavo.cunha\Desktop\Pessoal\google-python-exercises\babynames\baby"+f'{year_summary[0]}'+".html")
