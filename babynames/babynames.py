@@ -2,7 +2,24 @@ import os
 import os.path
 import re
 
-def openFile(filename, action):
+#dict-win= {} #global dictionary which will be assigned all the names
+
+def handlePath(filename):
+    backslash = "\\"
+    regex_dir_pattern = r'(^.*\\)\w+\.\w+$'
+    filename_list = filename.split()
+    file_path = filename_list[0]
+    cond = True if re.search(regex_dir_pattern, file_path) == None else False
+    if "--summary" in filename_list and len(filename_list) == 2 and not(cond):
+        openFile(file_path,filename_list[1])
+    elif "--all" and "--summary" in filename_list and cond:
+        runFolder(file_path+backslash) if backslash not in file_path[-1] else runFolder(file_path)
+    elif cond:
+        openFile(file_path, "")
+
+
+def openFile(filename,action):
+
     s = ""
     list_ranking = []
     try:
@@ -11,7 +28,7 @@ def openFile(filename, action):
             print(list_ranking)
             f.close()
             if action == '--summary':
-                write_file(list_ranking)
+                write_file(list_ranking,filename)
     except:
         print("Couldn't find any file in this path.")
 
@@ -34,27 +51,36 @@ def extract_names(file):
         full_list.append(str(list_win[i]+" "+dict_win[list_win[i]]))
     return full_list
 
-def write_file(list_var):
-    current_path = r"C:\Users\gustavo.cunha\Desktop\Pessoal\google-python-exercises\babynames\summary"+f'{list_var[0]}'+'.txt'
+def write_file(list_var,filename):
+    regex_dir_pattern = r'(^.*\\)\w+\.\w+$'
+    m = re.search(regex_dir_pattern, filename)
+    directory = m.group(1)
+    current_path = directory+f'{list_var[0]}'+'.txt'
 
     if os.path.isfile(current_path):
         os.remove(current_path)
-    w = open(r"C:\Users\gustavo.cunha\Desktop\Pessoal\google-python-exercises\babynames\summary" + f'{list_var[0]}' + '.txt',"w")
+    w = open(directory + f'{list_var[0]}' + '.txt',"w")
     for each in list_var:
         print(each, end="\n", file=w)
-        # print("".join(map(str, stretch) for stretch in list_var), end="\n") upcoming improvement using Generator
+        # print("".join(map(str, stretch) for stretch in list_var), end="\n") tentar imprimir usando generator
 
     w.close()
 
 #here a function that runs every single file  and release an overall of the most used names based on search
-def main():
-    
-    #input_var = input("Insert the path: ")
-    #input_var = r"C:\Users\gustavo.cunha\Desktop\Pessoal\texto_mimic.txt"
-    year_summary = input("Enter the year you would like to see the most used names and --summary for retrieving the ranking into a new file: ").split()
-    input_var = str(r"C:\Users\gustavo.cunha\Desktop\Pessoal\google-python-exercises\babynames\baby"+f'{year_summary[0]}'+".html")
-    openFile(input_var,year_summary[1].lower())
+def runFolder(path_f):
+   # m = re.search(r'(^.*\\)\w+\.\w+$',path_f) this snippet is searching to match all the path(directory) but name of file and extension
 
+    list_dir = os.listdir(path_f) #list all the files that belong to the right-most directory
+    for each_file in list_dir:
+        if ".html" in each_file:
+            openFile(path_f+each_file, "--summary")
+
+def main():
+
+    #input_var = r"C:\Users\gustavo.cunha\Desktop\Pessoal\texto_mimic.txt"
+
+    path_f = input("Enter the path of the file you would like to see the most used names and --summary (blank space in between) for retrieving the alphabetic-order ranking into a new file: ")
+    handlePath(path_f)
 
 if __name__ == "__main__":
     main()
