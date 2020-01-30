@@ -33,23 +33,22 @@ def openFile(filename,action):
         print("Couldn't find any file in this path.")
 
 def extract_names(file):
-    dict_win = {}
+    dict_win_male = {}
+    dict_win_female = {}
     full_list = []
-    list_win = []
-    year = int(re.findall(r"([0-9]*)</h3>",file)[0])
-    beginning_anchor_term = file.find("h3")
-    ending_anchor_term = file[beginning_anchor_term:].find("</table>")
-    str_var = file[beginning_anchor_term:ending_anchor_term]
-    name_rank = re.findall(r'(\d+)</td><td>([a-zA-Z]+)</td><td>([a-zA-Z]+)',str_var)
+    year = int(re.findall(r"([0-9]{4})</h[123]>",file)[0])
+    name_rank = re.findall(r"<td>(\d+)</td><td>(\w+)</td>\<td>(\w+)</td>",file)
     for name in name_rank:
-        dict_win[name[1]] = name[0]
-        dict_win[name[2]] = name[0]
-    list_win = list(dict_win.keys())
-    list_win.sort()
+        dict_win_male[name[1]] = name[0]
+        dict_win_female[name[2]] = name[0]
+    list_win_male = list(dict_win_male.keys())
+    list_win_female = list(dict_win_female.keys())
     full_list.append(year)
-    for i in range(len(list_win)):
-        full_list.append(str(list_win[i]+" "+dict_win[list_win[i]]))
+    for i in range(len(list_win_male)):
+        full_list.append(str(list_win_male[i]))
+        full_list.append(str(list_win_female[i]))
     return full_list
+
 
 def write_file(list_var,filename):
     regex_dir_pattern = r'(^.*\\)\w+\.\w+$'
