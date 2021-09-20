@@ -21,7 +21,7 @@ def methodHandler(current,method,commands):
     '''
     list_paths = []
     methods = {"--todir": (3,copy_to),
-               "--tozip": (3,zip_to),
+               "--tozip": (2,zip_to),
                "--move": (3,move_to),
                "--delete": (1,delete),
                "--list": (2,print_all),
@@ -218,10 +218,24 @@ def copy_to(current,param):
     handleFiles("copy",target=param[1],source=param[0],params=param[2],current=current)
     
 def zip_to(current,params):
-    source,target,name = params[0],params[1],params[2]
-    param = "" if len(params) == 3 else params[3]
-    with ZipFile(target+fr"\{name}.zip",'w') as zipObj:
+    target=""
+    source=""
+    name=""
+    param = ""
+    path=""
+    cond_target = "\\" in params[1] 
+    if cond_target:
+        source,target,name = params[0],params[1],params[2]
+        param = "" if len(params) == 3 else params[3]
+        path = target
+    else:
+        source,name = params[0],params[1]
+        param = "" if len(params) == 2 else params[2]
+        path = source
+    with ZipFile(path+fr"\{name}.zip",'w') as zipObj:
         handleFiles("zip",target,source,param,current,zipObj)
+    if cond_target:
+        move_to(current,[source,target,""])
 
 def move_to(current,param):
     handleFiles("move",target=param[1],source=param[0],params=param[2],current=current) 
