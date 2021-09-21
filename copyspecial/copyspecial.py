@@ -16,7 +16,7 @@ class FileHandler:
     
     
   def splitInstruction(self,args):
-    #args = args.split()
+    
     current_path = args[0]
     commands = args[1:]
     if len(commands) < 1:

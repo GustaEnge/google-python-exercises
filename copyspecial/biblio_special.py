@@ -3,10 +3,7 @@ import re
 import os
 import shutil
 from zipfile import ZipFile
-# def recursive_path(dir_var):
-#     for file in list_files:
-#         return 0
-# --todir target source params
+
 def methodHandler(current,method,commands):
     '''
     Returns a method according to the user's selected option
@@ -25,10 +22,12 @@ def methodHandler(current,method,commands):
                "--move": (3,move_to),
                "--delete": (1,delete),
                "--list": (2,print_all),
-               "--dedupli": lambda x:"dffd",
+               "--find": (2,find_path),
+               "--help": (0,help),
+               #"--dedupli": lambda x:"dffd",
               }
 
-    name = commands[0]
+    
     list_methods = methods.keys()             
 
     method_cond =  method in list_methods
@@ -37,8 +36,10 @@ def methodHandler(current,method,commands):
     error_message = "Missing commands to proceed"
 
     if method_cond:
-        if qtd_commands_cond:
-            methods[method][1](current,commands)   
+        if qtd_commands_cond and method != "--help":
+            methods[method][1](current,commands)               
+        elif method == "--help":
+            methods[method][1]()                               
         else:
             return (False,error_message)            
         
@@ -46,6 +47,9 @@ def methodHandler(current,method,commands):
         text_error = ','.join(each_command for each_command in list_methods)
         return (False,(f"this command: {method} is not valid. Use one of these: <({text_error}) command2 path1 path2>"))
 
+def help():
+    file = open(os.getcwd()+'\docs.txt','r',newline='\n')
+    print(f'\n{file.read()}')
 def check_dir(path,current):
     '''
     Returns the directory path depending on the argumnent. Whether . (dot) or a valid path
@@ -64,15 +68,44 @@ def check_dir(path,current):
     return dir_path
 
 def all_files(path,current=""):
+    '''
+    Returns all the archives/directories from a predefined path
+
+            Parameters:
+                    current (string): the path of .py, actual path
+                    path (string): the path where the method will perform the action
+                    
+            Returns:
+                   A list of all archives logged
+    '''
     directory = path
     if current != "":
         directory = check_dir(path,current)
     list_paths = list(enumerate(os.listdir(directory),1))
     return list_paths
+
+def find_path(current,param):
+    '''
+    Find files/folders based on matching text pattern
+
+            Parameters:
+                current (string): the path of .py, actual path
+                param (string): the path where the method will perform the action or the params to be filtered
+    '''
+    #pattern = r"\\((?!.*\\)[\d\sa-zA-Z_-]*)"
+    pattern = r"(.*)(\.)"
+    source = check_dir(param[0],current)
+    files = os.listdir(source)
+    paths = list((n,v) for n,v in enumerate(files,1))
+    pattern_check = lambda x: (re.search(pattern,x)).group(1)
+    for i in files:
+        if (os.path.isdir(i)): #and param[1] in (pattern_check(i)):
+            print(i)
+    #print(*(f"{value} : {os.path.abspath(path)}" for value,path in paths if param[1] in (pattern_check(pattern,path))), sep="\n")
     
 def print_all(current,param):
     '''
-    Outputs all the archives/directories from a predefined instruction and path
+    Outputs all the archives/directories from a predefined path
 
             Parameters:
                     current (string): the path of .py, actual path
@@ -83,7 +116,7 @@ def print_all(current,param):
     '''
     list_var = handleFiles("list",params=param[1],current=current,source=param[0])
     paths = list((n,v) for n,v in enumerate(list_var,1))
-    print(*(f"{value} : {os.path.abspath(path)}" for value,path in paths), sep="\n")  
+    print(*(f"{value} : {os.path.abspath(path)}" for value,path in paths if re.match(pattern,params)), sep="\n")  
 
 def get_special(path,current, pattern):
     directory = (check_dir(path,current))    
@@ -122,7 +155,6 @@ def validation_target(target):
             return False,f"Creation of the directory {target} failed"            
         return True,""      
     
-
 def handleFiles(method,target="",source="",params = "",current = "",obj=""):
     '''
     Handles which method will be performed from all those that are in the dictionary
@@ -215,9 +247,23 @@ def handleFiles(method,target="",source="",params = "",current = "",obj=""):
             raise Exception("Error: The method is invalid")
             
 def copy_to(current,param):
+    '''
+    Copy file(s)/folder from a source to a target path
+
+            Parameters:
+                current (string): the path of .py, actual path
+                param (string): the path where the method will perform the action or the params to be filtered
+    '''
     handleFiles("copy",target=param[1],source=param[0],params=param[2],current=current)
     
 def zip_to(current,params):
+    '''
+    Zip/Compact selected files or the whole folder, depending on the source and target paths
+
+            Parameters:
+                current (string): the path of .py, actual path
+                param (string): the path where the method will perform the action or the params to be filtered          
+    '''
     target=""
     source=""
     name=""
@@ -238,9 +284,24 @@ def zip_to(current,params):
         move_to(current,[source,target,""])
 
 def move_to(current,param):
+    '''
+    Move file(s)/folder from a source to a target path
+
+            Parameters:
+                current (string): the path of .py, actual path
+                param (string): the path where the method will perform the action or the params to be filtered          
+    '''
     handleFiles("move",target=param[1],source=param[0],params=param[2],current=current) 
 
 def delete(current,params):
+    '''
+    Delete file(s)/folder from a source path
+
+            Parameters:
+                current (string): the path of .py, actual path
+                param (string): the path where the method will perform the action or the params to be filtered          
+    '''
+
     target = params[0] if re.match(r"\\$",params[0]) or os.path.isfile(params[0]) else params[0]+"\\"
     cond_param = len(params) < 2
     if os.path.isfile(target):
