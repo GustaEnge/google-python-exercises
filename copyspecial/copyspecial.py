@@ -35,9 +35,11 @@ def main():
 
   # Make a list of command line arguments, omitting the [0] element
   # which is the script itself.
-  args = sys.argv
-  fileHandler = FileHandler(args)
-  fileHandler.action()
-  
+  try:
+    args = sys.argv
+    fileHandler = FileHandler(args)
+    fileHandler.action()
+  except Exception as e:
+    print(e)
 if __name__ == "__main__":
   main()

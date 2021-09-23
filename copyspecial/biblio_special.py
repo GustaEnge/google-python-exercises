@@ -97,11 +97,10 @@ def find_path(current,param):
     source = check_dir(param[0],current)
     files = os.listdir(source)
     paths = list((n,v) for n,v in enumerate(files,1))
-    pattern_check = lambda x: (re.search(pattern,x)).group(1)
-    for i in files:
-        if (os.path.isdir(i)): #and param[1] in (pattern_check(i)):
-            print(i)
-    #print(*(f"{value} : {os.path.abspath(path)}" for value,path in paths if param[1] in (pattern_check(pattern,path))), sep="\n")
+    pattern_check = lambda x: re.search(pattern,x)
+    spelling_cond = lambda word,matched: word.upper() in matched or word.lower() in matched or word.capitalize() in matched
+    cond_file = lambda i: not(os.path.isdir(i)) and pattern_check(i) and spelling_cond(param[1],pattern_check(i).group(1))
+    print(*(f"{value} : {os.path.abspath(path)}" for value,path in paths if cond_file(path)), sep="\n")
     
 def print_all(current,param):
     '''
@@ -116,7 +115,7 @@ def print_all(current,param):
     '''
     list_var = handleFiles("list",params=param[1],current=current,source=param[0])
     paths = list((n,v) for n,v in enumerate(list_var,1))
-    print(*(f"{value} : {os.path.abspath(path)}" for value,path in paths if re.match(pattern,params)), sep="\n")  
+    print(*(f"{value} : {os.path.abspath(path)}" for value,path in paths), sep="\n")  
 
 def get_special(path,current, pattern):
     directory = (check_dir(path,current))    

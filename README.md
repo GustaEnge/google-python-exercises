@@ -18,7 +18,7 @@ Given a file name for baby.html, returns a list starting with the year string fo
   ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
 ```
 
->Part B (to be finished)
+>Part B
 ```
 Implement the keyword "summary" in file path to implement a feature which run more than one file at time, looking over the names in all years (tables)
 ```
