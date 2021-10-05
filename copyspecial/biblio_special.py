@@ -2,6 +2,8 @@ import sys
 import re
 import os
 import shutil
+import copy
+import unidecode
 from zipfile import ZipFile
 
 def methodHandler(current,method,commands):
@@ -67,6 +69,7 @@ def check_dir(path,current):
         dir_path = os.path.dirname(os.path.abspath(current))+"\\"
     return dir_path
 
+#TODO When I want to handle only one file through the source path, it doesn't need to evaluate the params
 def all_files(path,current=""):
     '''
     Returns all the archives/directories from a predefined path
@@ -93,9 +96,11 @@ def find_path(current,param):
                 param (string): the path where the method will perform the action or the params to be filtered
     '''
     #pattern = r"\\((?!.*\\)[\d\sa-zA-Z_-]*)"
+    #regex = r"[À-ž]*" allow words without diacritics to match * 
     pattern = r"(.*)(\.)"
     source = check_dir(param[0],current)
     files = os.listdir(source)
+    #no_diacritics_list = lambda lista,sub:list([word for word in lista if re.search(regex,word) and sub in unidecode.unidecode(word)]) *
     paths = list((n,v) for n,v in enumerate(files,1))
     pattern_check = lambda x: re.search(pattern,x)
     spelling_cond = lambda word,matched: word.upper() in matched or word.lower() in matched or word.capitalize() in matched
@@ -185,6 +190,9 @@ def handleFiles(method,target="",source="",params = "",current = "",obj=""):
     source = source if source == "" else check_dir(source,current)
     target = target if target == "" else check_dir(target,current)
 
+    #print(source)
+    #print(target)
+
     validation_source,message = (True,"") if (os.path.isdir(source) or os.path.isfile(source)) and source != target else (False,"This is not a valid source path.")
     error_list.append(message)
 
@@ -266,21 +274,20 @@ def zip_to(current,params):
     target=""
     source=""
     name=""
-    param = ""
+    param = params[-1]
     path=""
     cond_target = "\\" in params[1] 
     if cond_target:
         source,target,name = params[0],params[1],params[2]
-        param = "" if len(params) == 3 else params[3]
-        path = target
+        path = copy.deepcopy(target)
     else:
         source,name = params[0],params[1]
-        param = "" if len(params) == 2 else params[2]
-        path = source
-    with ZipFile(path+fr"\{name}.zip",'w') as zipObj:
+        path = copy.deepcopy(source)
+    path = path+fr"\{name}.zip"        
+    with ZipFile(path,'w') as zipObj:
         handleFiles("zip",target,source,param,current,zipObj)
     if cond_target:
-        move_to(current,[source,target,""])
+        move_to(current,[path,target,""])
 
 def move_to(current,param):
     '''
