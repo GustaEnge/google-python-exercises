@@ -26,16 +26,16 @@ Examples:
 
 --list F:\c --all
 
---list F:\a 1,3
+--list F: 1,3
 
---list F:\a .png,.pdf
+--list F: .png,.pdf
 
---todir F:\a F:\b .png  
+--todir F: F: .png  
 
---delete F:\b .txt
+--delete F: .txt
 
---move F:\b F:\a .png
+--move F: F: .png
 
 --tozip F:\c 'teste_a'
 
---tozip F:\c F:\a 'teste_a'
+--tozip F:\c F: 'teste_a'

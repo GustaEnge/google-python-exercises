@@ -3,8 +3,10 @@ import re
 import os
 import shutil
 import copy
-import unidecode
+import unidecode,base64
 from zipfile import ZipFile
+
+TEXT_HELP = 'VXNhZ2U6IC0tbWV0aG9kIFtzb3VyY2VdIFt0YXJnZXRdIFtwYXJhbXNdIAoKIFBlcmZvcm0gYSBtZXRob2Qgb3ZlciB0aGUgZmlsZS9kaXJlY3RvcnkgcGFzc2VkCgpTeW50YXg6CiBwb3NpdGlvbmFsIGFyZ3VtZW50czoKICAgbWV0aG9kCgogb3B0aW9uYWwgYXJndW1lbnRzOgogICBwYXJhbXMsIHRhcmdldCAKClNlbWFudGljOgogbWV0aG9kczoKICAtLWhlbHAgLT4gU2hvdyB0aGlzIGhlbHAgbWVzc2FnZSBhbmQgZXhpdAogIC0tbGlzdCAtPiBPdXRwdXQgYWxsIHRoZSBhcmNoaXZlcy9kaXJlY3RvcmllcyBmcm9tIGEgcHJlZGVmaW5lZCBwYXRoCiAgLS10b2RpciAtPiBDb3B5IGZpbGUocykvZm9sZGVyIGZyb20gYSBzb3VyY2UgdG8gYSB0YXJnZXQgcGF0aAogIC0tbW92ZSAtPiBNb3ZlIGZpbGUocykvZm9sZGVyIGZyb20gYSBzb3VyY2UgdG8gYSB0YXJnZXQgcGF0aAogIC0tZGVsZXRlIC0+IERlbGV0ZSBmaWxlKHMpL2ZvbGRlciBmcm9tIGEgc291cmNlIHBhdGgKICAtLXppcCAtPiBaaXAvQ29tcGFjdCBzZWxlY3RlZCBmaWxlcyBvciB0aGUgd2hvbGUgZm9sZGVyCiAgLS1maW5kIC0+IEZpbmQgZmlsZXMvZm9sZGVycyBiYXNlZCBvbiBtYXRjaGluZyB0ZXh0IHBhdHRlcm4KCiB0aXBzOgogLiAtPiBHZXQgdGhlIGN1cnJlbnQgcGF0aCB3aGVyZSB0aGUgcHJvZ3JhbXMgaXMgbG9jYXRlZAoKRXhhbXBsZXM6CgotLWxpc3QgRjpcYyAtLWFsbAoKLS1saXN0IEY6ByAxLDMKCi0tbGlzdCBGOgcgLnBuZywucGRmCgotLXRvZGlyIEY6ByBGOgggLnBuZyAgCgotLWRlbGV0ZSBGOgggLnR4dAoKLS1tb3ZlIEY6CCBGOgcgLnBuZwoKLS10b3ppcCBGOlxjICd0ZXN0ZV9hJwoKLS10b3ppcCBGOlxjIEY6ByAndGVzdGVfYScK'
 
 def methodHandler(current,method,commands):
     '''
@@ -50,8 +52,16 @@ def methodHandler(current,method,commands):
         return (False,(f"this command: {method} is not valid. Use one of these: <({text_error}) command2 path1 path2>"))
 
 def help():
-    file = open(os.getcwd()+'\docs.txt','r',newline='\n')
-    print(f'\n{file.read()}')
+    try:
+        file = open(os.getcwd()+'\docs.txt','r',newline='\n')
+        print(f'\n{file.read()}')
+    except:
+        bytes_64 = base64.b64decode(TEXT_HELP.encode('utf-8'))
+        base64_text = bytes_64.decode('utf-8')    
+        with open(os.getcwd()+'\docs.txt','w') as file:
+            file.write(base64_text)
+        help()            
+
 def check_dir(path,current):
     '''
     Returns the directory path depending on the argumnent. Whether . (dot) or a valid path
@@ -324,9 +334,10 @@ def delete(current,params):
     list((n,v) for n,v in enumerate(list_var,1))
     print(*(f"{value} : {os.path.abspath(path)}" for value,path in paths), sep="\n")    """     
     
+
 def main():
     get_special(r"F:\Arquivos\NewM\videos_reunioes",r"F:\Arquivos\NewM\videos_reunioes",r"__\w*__")
-    
+
 if __name__ == "__main__":
   main()  
 
