@@ -10,7 +10,7 @@
 
 from asyncore import read
 import os
-import re
+import re,time
 import sys,shutil
 import urllib.request as Request
 
@@ -36,7 +36,8 @@ class LogPuzzle:
     with open(self.filename,"rt",newline=None) as archiveObj:
       line = archiveObj.readline() 
       while line:
-        if 'puzzle' in line:
+        if 'puzzle' and 'images' in line:
+          # p-(\w+-\w+)
           pattern = r'GET (\/.*jpg)'
           extract = re.search(pattern,line).group(1)
           if extract not in self.list_links:
@@ -57,7 +58,10 @@ class LogPuzzle:
     dir = os.path.dirname(__file__)
     os.mkdir(dir+'/page')
     os.mkdir(dir+'/page/images')
-    filename = lambda x: os.path.join(dir+'/page/images/',x)
+    path = dir+'/page/images/'
+    path_dir = dir+'/page/'
+    path_html = os.path.join(path_dir,'index.html')
+    filename = lambda x: os.path.join(path,x)
     for i in range (len(self.list_links)):
       Request.urlretrieve(self.list_links[i],filename(f'img{i}.jpg'))
 
@@ -65,16 +69,17 @@ class LogPuzzle:
     html_encoding = '<html><head></head><body>%s</body></html>'
     img_enconding_list = [] 
     
-    with open('F:\GitHub\google-python-exercises\logpuzzle\page\index.html','w') as htmlObj:
+    with open(path_html,'w') as htmlObj:
       
-      paths = os.listdir(dir+"/page/images")
+      paths = os.listdir(path)
       ordered  = sorted(paths,key=lambda x:int((re.search('\d+',x).group(0))))
       for path in ordered:
         img_enconding_list.append('<img src="images/%s">' % path)
       htmlObj.write(html_encoding % "".join(img_enconding_list))
 
-    os.startfile('F:\GitHub\google-python-exercises\logpuzzle\page\index.html',)
-    shutil.rmtree('F:\GitHub\google-python-exercises\logpuzzle\page')               
+    os.startfile(path_html)
+    time.sleep(5)
+    shutil.rmtree(path_dir)               
     
 
 def main():
@@ -98,6 +103,7 @@ def main():
 
 if __name__ == '__main__':
   #main()
-  logpuzzle = LogPuzzle(r'F:\GitHub\google-python-exercises\logpuzzle\animal_code.google.com')
+  #logpuzzle = LogPuzzle(r'F:\GitHub\google-python-exercises\logpuzzle\animal_code.google.com')
+  logpuzzle = LogPuzzle(r'F:\GitHub\google-python-exercises\logpuzzle\place_code.google.com')
   logpuzzle.read_urls()
   logpuzzle.download_images()
