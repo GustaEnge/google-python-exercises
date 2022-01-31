@@ -26,27 +26,25 @@ class LogPuzzle:
   def __init__(self,filename) -> None:
       self.filename = filename
       self.list_links = []
+      self.url = 'https://code.google.com//edu/languages/google-python-class/images/puzzle/'
   def read_urls(self):
     """Returns a list of the puzzle urls from the given log file,
     extracting the hostname from the filename itself.
     Screens out duplicate urls and returns the urls sorted into
     increasing order."""
     
-
     with open(self.filename,"rt",newline=None) as archiveObj:
       line = archiveObj.readline() 
       while line:
-        if 'puzzle' and 'images' in line:
-          # p-(\w+-\w+)
-          pattern = r'GET (\/.*jpg)'
-          extract = re.search(pattern,line).group(1)
-          if extract not in self.list_links:
-            self.list_links.append('https://code.google.com'+extract)
+        if 'google-python-class' in line:
+          pattern_nameImg = r'GET.*\/([\-a-z]*).jpg'
+          extract_nameImg = re.search(pattern_nameImg,line).group(1)
+          if extract_nameImg not in self.list_links:
+            self.list_links.append(extract_nameImg)
         line = archiveObj.readline()
 
-      self.list_links.sort()
-    
-
+    self.list_links.sort(key=lambda x: re.search(r'\w*$',x).group(0))
+  
   def download_images(self):
     """Given the urls already in the correct order, downloads
     each image into the given directory.
@@ -63,14 +61,12 @@ class LogPuzzle:
     path_html = os.path.join(path_dir,'index.html')
     filename = lambda x: os.path.join(path,x)
     for i in range (len(self.list_links)):
-      Request.urlretrieve(self.list_links[i],filename(f'img{i}.jpg'))
-
+      Request.urlretrieve(self.url+self.list_links[i]+'.jpg',filename(f'img{i}.jpg'))
 
     html_encoding = '<html><head></head><body>%s</body></html>'
     img_enconding_list = [] 
     
     with open(path_html,'w') as htmlObj:
-      
       paths = os.listdir(path)
       ordered  = sorted(paths,key=lambda x:int((re.search('\d+',x).group(0))))
       for path in ordered:
@@ -80,7 +76,6 @@ class LogPuzzle:
     os.startfile(path_html)
     time.sleep(5)
     shutil.rmtree(path_dir)               
-    
 
 def main():
   args = sys.argv[1:]
@@ -94,16 +89,15 @@ def main():
     todir = args[1]
     del args[0:2]
 
-  img_urls = read_urls(args[0])
+  logpuzzle = LogPuzzle(args[1])
+  logpuzzle.read_urls()
 
   if todir:
-    download_images(img_urls, todir)
-  else:
-    print ('\n'.join(img_urls))
+    logpuzzle.download_images()
 
 if __name__ == '__main__':
-  #main()
+  main()
   #logpuzzle = LogPuzzle(r'F:\GitHub\google-python-exercises\logpuzzle\animal_code.google.com')
-  logpuzzle = LogPuzzle(r'F:\GitHub\google-python-exercises\logpuzzle\place_code.google.com')
-  logpuzzle.read_urls()
-  logpuzzle.download_images()
+  #logpuzzle = LogPuzzle(r'F:\GitHub\google-python-exercises\logpuzzle\place_code.google.com')
+  #logpuzzle.read_urls()
+  #logpuzzle.download_images()  
