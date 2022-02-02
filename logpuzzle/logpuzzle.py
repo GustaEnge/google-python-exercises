@@ -89,10 +89,9 @@ def main():
     todir = args[1]
     del args[0:2]
 
-  logpuzzle = LogPuzzle(args[1])
-  logpuzzle.read_urls()
-
   if todir:
+    logpuzzle = LogPuzzle(todir)
+    logpuzzle.read_urls()
     logpuzzle.download_images()
 
 if __name__ == '__main__':
